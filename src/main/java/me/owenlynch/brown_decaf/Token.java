@@ -10,8 +10,10 @@ class Token {
         DoubleConst  = "DoubleConst",
         BooleanConst = "BooleanConst",
         StringConst  = "StringConst",
+		CharConst    = "CharacterConst",
         ID           = "Identifier",
         OP           = "Operator",
+		Punc		 = "Punctuation",
         NEWARRAY     = "NEWARRAY",
         NEW          = "NEW",
         PRINT        = "PRINT",
@@ -52,81 +54,4 @@ class Token {
 		return "Token(" + Type + ", \"" + Text + "\", " + Line + ":" + Column + ")";
 	}
 
-}
-
-class KeywordToken extends Token {
-	public KeywordToken(String text, int line, int col) {
-		super(text, text, line, col);
-	}
-	public String toString() {
-		return "Keyword(<" + Text + ">, " + Line + ":" + Column + ")";
-	}
-}
-
-class IntToken extends Token {
-	int Value;
-	public IntToken(int value, int line, int col) {
-		super(IntConst, "" + value, line, col);
-		Value = value;
-	}
-
-	public String toString() {
-		return "Int(" + Value + ")";
-	}
-}
-
-class DoubleToken extends Token {
-	double Value;
-	public DoubleToken(double value, int line, int col) {
-		super(DoubleConst, "" + value, line, col);
-		Value = value;
-	}
-	public String toString() {
-		return "Double(" + Value + ")";
-	}
-}
-
-class StringToken extends Token {
-	String Value;
-	public StringToken(String value, int line, int col) {
-		super(StringConst, value, line, col);
-		Value = value;
-	}
-	public String toString() {
-		return "String(" + Value + ")";
-	}
-}
-
-class BooleanToken extends Token {
-	boolean Value;
-	public BooleanToken(boolean value, int line, int col) {
-		super(BooleanConst, "" + value, line, col);
-		Value = value;
-	}
-	public String toString() {
-		return "Boolean(" + Value + ")";
-	}
-}
-
-class IDToken extends Token {
-	String Name;
-	public IDToken(String name, int line, int col) {
-		super(ID, name, line, col);
-		Name = name;
-	}
-	public String toString() {
-		return "ID(" + Name + ")";
-	}
-}
-
-class OperatorToken extends Token {
-	String Value;
-
-	public OperatorToken(String op, int line, int col) {
-		super(Token.OP, "" + op, line, col);
-		Value = op;
-	}
-	public String toString() {
-		return "Operator(" + Text + ", " + Line + ":" + Column + ")";
-	}
 }
