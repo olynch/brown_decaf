@@ -9,9 +9,54 @@ import java.util.HashSet;
 
 class Scanner {
     final InputStream File;
+	/* 
+	 * token = [a-zA-Z0-9_-_]+
+	 * stringLiteral = "(!|[#-~]|\\n|\\")*"
+	 * int = [0-9]+
+	 * double = [0-9]+\.[0-9]+
+	 * punctuation = [.,;\[\]\(\)\{\}]
+	 * character = '([!-&]|[(-~]|\\n|\\')'
+	 * operator = +|*|-|/|=|==|!=|>=|<=|>|<|!|&&| || |
+	 */
 	private static DFA decafDFA = new DFA(
-			"{ 'accepting': []," +
-			"'dfa_arr': [" +
+			"{" +
+			"\"num_states\": 17," +
+			"\"accepting\": [[1, \"Identifier\"], [4, \"StringConst\"], [5, \"IntConst\"], [7, \"DoubleConst\"], [11, \"CharacterConst\"], [12, \"Punctuation\"], [14, \"Operator\"], [15, \"Operator\"]]," +
+			"\"dfa_arr\": [" +
+				//0 (Start)
+				"{ \"a-zA-Z\": 1, \"\\\"\": 2, \"0-9\": 5, \"'\": 8, \";,.{}[]()\": 12, \"&\": 13, \"+*-/\": 14, \"!=<>\": 15, \"|\": 16}," +
+				//1 (ID)
+				"{ \"a-zA-Z0-9\": 1 }," +
+				//2 (String)
+				"{ \"\\\\\": 3, \"^'\\\\\": 2, \"\\\"\": 4}," +
+				//3 (String \)
+				"{ \" -~\": 2 }," +
+				//4 (String F)
+				"{ }," +
+				//5 (Int)
+				"{ \"0-9\": 5, \".\": 6 }," +
+				//6 (Decimal point)
+				"{ \"0-9\": 7 }," +
+				//7 (Float)
+				"{ \"0-9\": 7 }," +
+				//8 (Char)
+				"{ \"\\\\\": 9, \"^'\\\\\": 10 }," +
+				//9 (Char \)
+				"{ \"!-~\": 10 }," +
+				//10 (Char after \)
+				"{ \"'\": 11 }," +
+				//11 (Char F)
+				"{ }," +
+				//12 (Punctuation)
+				"{ }," +
+				//13 (Operator &)
+				"{ \"&\": 14 }," +
+				//14 (Operator F)
+				"{ }," +
+				//15 (Operator =)
+				"{ \"=\": 14 }," +
+				//16 (Operator |)
+				"{ \"|\": 14 }" +
 			"]" +
 			"}"
 			);
@@ -49,17 +94,27 @@ class Scanner {
 		return keyset;
 	}
 
-    public int look() throws IOException {
+    public int look() {
         //should look at the next character but not read it
 		File.mark(2);
-		int theChar = File.read();
-		File.reset();
+		int theChar;
+		try {
+			theChar = File.read();
+			File.reset();
+		} catch (IOException e) {
+			return -1;
+		}
 		return theChar;
     }
 
-    public int getChar() throws IOException {
+    public int getChar() {
         //should read the next character
-		char curChar = (char) File.read();
+		char curChar;
+		try {
+			curChar = (char) File.read();
+		} catch (IOException e) {
+			return -1;
+		}
 		col++;
 		if (curChar == '\n') {
 			line++;
@@ -96,11 +151,11 @@ class Scanner {
 
     void skipSpace() throws IOException {
         //to implement
-		while (File.available() > 0) {
+		while (true) {
 			switch ((char) look()) {
 				case ' ':
 				case '\n':
-					getChar();
+				case '\t':
 					break;
 				case '/':
 					File.mark(3);
@@ -122,67 +177,99 @@ class Scanner {
 						col = curCol;
 						return;
 					}
+				default:
+					return;
 			}
 			getChar();
 		}
     }
 
-    public Token getToken() throws IOException, ScanException {
+    public Token getToken() throws ScanException {
         //to implement
         //this is the meat of the Scanner, I would suggest breaking it down
-		skipSpace();
+		try {
+			skipSpace();
+		} catch (IOException e) { //eof
+			return null;
+		}
 		int curCol = col;
 		int curLine = line;
 		int state = 0;
+		int next_state = 0;
 		StringBuilder acc = new StringBuilder();
+		int cur;
 		char curChar;
-		while (File.available() > 0) {
-			curChar = (char) look();
-			acc.append(curChar);
-			try {
-				state = decafDFA.transition(state, curChar);
-			} catch (ScanException e) {
+		while (true) {
+			cur = look();
+			if (cur == -1) {
+				if (decafDFA.isAccepting(state)) {
+					break;
+				}
+				else if (state == 0) {
+					return null;
+				}
+				else {
+					throw new ScanException("End of Input while scanning");
+				}
+			}
+			curChar = (char) cur;
+			next_state = decafDFA.transition(state, curChar);
+			if (next_state == -1) {
 				if (decafDFA.isAccepting(state)) {
 					break;
 				}
 				else {
-					throw e;
+					throw new ScanException("No transition at " + line + ":" + col + ", state: " + state + ", curChar: " + curChar);
 				}
 			}
+			acc.append(curChar);
+			state = next_state;
+			getChar();
 		}
 		String tkn = decafDFA.token(state);
 		String accStr = acc.toString();
 		switch (tkn) {
 			case "Identifier":
-				if (isKeyword(accStr) ){
-					return new KeywordToken(accStr.toUpperCase(), curLine, curCol);
+				if (isKeyword(accStr)){
+					return new KeywordToken(accStr, curLine, curCol);
+				}
+				if (isBoolConst(accStr)) {
+					return new BooleanToken(accStr, curLine, curCol);
+				}
+				if (isNullConst(accStr)) {
+					return new NullToken(accStr, curLine, curCol);
 				}
 				else {
 					return new IDToken(accStr, curLine, curCol);
 				}
 			case "IntConst":
-				return new IntToken(Integer.parseInt(accStr), curLine, curCol);
+				return new IntToken(accStr, curLine, curCol);
 			case "DoubleConst":
-				return new DoubleToken(Double.parseDouble(accStr), curLine, curCol);
-			case "BooleanConst":
-				return new BooleanToken(Boolean.parseBoolean(accStr), curLine, curCol);
+				return new DoubleToken(accStr, curLine, curCol);
 			case "StringConst":
-				return new StringToken(accStr.substring(1, accStr.length() - 1), curLine, curCol);
+				return new StringToken(accStr, curLine, curCol);
 			case "CharacterConst":
-				return new CharacterToken(accStr.substring(1, accStr.length() - 1), curLine, curCol);
+				return new CharacterToken(accStr, curLine, curCol);
 			case "Operator":
 				return new OperatorToken(accStr, curLine, curCol);
 			case "Punctuation":
-				return new PunctuationToken(accStr.charAt(0), curLine, curCol);
+				return new PunctuationToken(accStr, curLine, curCol);
 			default:
 				throw new ScanException("Token type not found");
 		}
     }
 
-    boolean isKeyword(String name){
-        //to implement
+    private boolean isKeyword(String name){
 		return keywords.contains(name);
     }
+
+	private boolean isBoolConst(String name) {
+		return (name == "true" || name == "false");
+	}
+
+	private boolean isNullConst(String name) {
+		return (name == "null");
+	}
     
     String getIdentifier() {
         //to implement

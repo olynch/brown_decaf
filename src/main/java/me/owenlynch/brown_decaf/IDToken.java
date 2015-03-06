@@ -7,6 +7,6 @@ class IDToken extends Token {
 		Name = name;
 	}
 	public String toString() {
-		return "ID(" + Name + ")";
+		return "ID(" + Name + ", " + Line + ":" + Column + ")";
 	}
 }

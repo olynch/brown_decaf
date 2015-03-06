@@ -54,4 +54,9 @@ class Token {
 		return "Token(" + Type + ", \"" + Text + "\", " + Line + ":" + Column + ")";
 	}
 
+	public boolean equals(Token other) {
+		//return (Type == other.Type && Text == other.Text && Line == other.Line && Column == other.Column);
+		return (Type.equals(other.Type) && Text.equals(other.Text));
+	}
+
 }
