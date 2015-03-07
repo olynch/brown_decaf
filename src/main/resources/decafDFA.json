@@ -1,0 +1,32 @@
+{
+	"num_states": 17,
+	"accepting": [
+		[1, "Identifier"],
+		[4, "StringConst"],
+		[5, "IntConst"],
+		[7, "DoubleConst"],
+		[11, "CharacterConst"],
+		[12, "Punctuation"],
+		[14, "Operator"],
+		[15, "Operator"]
+	],
+	"dfa_arr": [
+		{ "a-zA-Z": 1, "\"": 2, "0-9": 5, "'": 8, ";,.{}[]()": 12, "&": 13, "+*-/": 14, "!=<>": 15, "|": 16, "_comment": "0 (Start)" },
+		{ "a-zA-Z0-9": 1, "_comment": "1 (ID)" },
+		{ "\\": 3, "^'\\": 2, "\"": 4, "_comment": "2 (String)" },
+		{ " -~": 2, "_comment": "3 (String \\)" },
+		{ "_comment": "4 (String F)" },
+		{ "0-9": 5, ".": 6, "_comment": "5 (Int)" },
+		{ "0-9": 7, "_comment": "6 (Decimal point)" },
+		{ "0-9": 7, "_comment": "7 (Float)" },
+		{ "\\": 9, "^'\\": 10, "_comment": "8 (Char)" },
+		{ "!-~": 10, "_comment": "9 (Char \\)" },
+		{ "'": 11, "_comment": "10 (Char after \\)" },
+		{ "_comment": "11 (Char F)"},
+		{ "_comment": "12 (Punctuation)"},
+		{ "&": 14, "_comment": "13 (Operator &)" },
+		{ "_comment": "14 (Operator F)" },
+		{ "=": 14, "_comment": "15 (Operator =)"},
+		{ "|": 14, "_comment": "16 (Operator |)"}
+	]
+}
