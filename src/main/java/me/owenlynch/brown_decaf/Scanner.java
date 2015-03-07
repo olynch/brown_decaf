@@ -18,53 +18,12 @@ class Scanner {
 	 * character = '([!-&]|[(-~]|\\n|\\')'
 	 * operator = +|*|-|/|=|==|!=|>=|<=|>|<|!|&&| || |
 	 */
-	private static DFA decafDFA = new DFA(
-			"{" +
-			"\"num_states\": 17," +
-			"\"accepting\": [[1, \"Identifier\"], [4, \"StringConst\"], [5, \"IntConst\"], [7, \"DoubleConst\"], [11, \"CharacterConst\"], [12, \"Punctuation\"], [14, \"Operator\"], [15, \"Operator\"]]," +
-			"\"dfa_arr\": [" +
-				//0 (Start)
-				"{ \"a-zA-Z\": 1, \"\\\"\": 2, \"0-9\": 5, \"'\": 8, \";,.{}[]()\": 12, \"&\": 13, \"+*-/\": 14, \"!=<>\": 15, \"|\": 16}," +
-				//1 (ID)
-				"{ \"a-zA-Z0-9\": 1 }," +
-				//2 (String)
-				"{ \"\\\\\": 3, \"^'\\\\\": 2, \"\\\"\": 4}," +
-				//3 (String \)
-				"{ \" -~\": 2 }," +
-				//4 (String F)
-				"{ }," +
-				//5 (Int)
-				"{ \"0-9\": 5, \".\": 6 }," +
-				//6 (Decimal point)
-				"{ \"0-9\": 7 }," +
-				//7 (Float)
-				"{ \"0-9\": 7 }," +
-				//8 (Char)
-				"{ \"\\\\\": 9, \"^'\\\\\": 10 }," +
-				//9 (Char \)
-				"{ \"!-~\": 10 }," +
-				//10 (Char after \)
-				"{ \"'\": 11 }," +
-				//11 (Char F)
-				"{ }," +
-				//12 (Punctuation)
-				"{ }," +
-				//13 (Operator &)
-				"{ \"&\": 14 }," +
-				//14 (Operator F)
-				"{ }," +
-				//15 (Operator =)
-				"{ \"=\": 14 }," +
-				//16 (Operator |)
-				"{ \"|\": 14 }" +
-			"]" +
-			"}"
-			);
+	private static final DFA decafDFA = new DFA("decafDFA.json");
 	private static HashSet<String> keywords = keywordsHash();
 	private int col;
 	private int line;
 
-    public Scanner(java.io.InputStream file) {
+    public Scanner(InputStream file) {
         File = file;
     }
 

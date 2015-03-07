@@ -3,6 +3,8 @@ package me.owenlynch.brown_decaf;
 import java.util.HashSet;
 import org.json.*;
 import java.util.Iterator;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class DFA {
 	private int[] dfa;
@@ -18,8 +20,19 @@ public class DFA {
 		dfa[state * 128 + (int) transition] = val;
 	}
 
-	public DFA(String json_desc) {
-		JSONObject desc = new JSONObject(json_desc);
+	public DFA(String json_file) {
+		StringBuilder sb = new StringBuilder(8192);
+		try {
+			InputStream is = ClassLoader.getSystemResourceAsStream(json_file);
+			BufferedReader r = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+			String str = null;
+			while ((str = r.readLine()) != null) {
+				sb.append(str);
+			}
+		} catch (IOException e) {
+			// Do nothing, because this isn't going to happen: we know we will find it because we wrote it and put it there
+		}
+		JSONObject desc = new JSONObject(sb.toString());
 		numStates = (Integer) desc.get("num_states");
 		dfa = new int[numStates * 128];
 		for (int i = 0; i < dfa.length; ++i) {
@@ -39,7 +52,14 @@ public class DFA {
 			Iterator<String> keys = curobj.keys();
 			while (keys.hasNext()) {
 				String key = keys.next();
-				int val = (Integer) curobj.get(key);
+				int val = -1;
+				if(! key.equals("_comment")) {
+					val = (Integer) curobj.get(key);
+				}
+				else {
+					// it's a comment: do nothing
+					continue;
+				}
 				if (key.length() == 1) {
 					set(i, key.charAt(0), val);
 				}
