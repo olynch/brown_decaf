@@ -5,10 +5,11 @@
 //This class will be instantiated and used by the next piece, Parser.java
 package me.owenlynch.brown_decaf;
 import java.io.*;
+import DataDSL.*
 import java.util.HashSet;
 
 class Scanner {
-    final InputStream File;
+    final InputStream file;
 	/* 
 	 * token = [a-zA-Z0-9_-_]+
 	 * stringLiteral = "(!|[#-~]|\\n|\\")*"
@@ -18,89 +19,142 @@ class Scanner {
 	 * character = '([!-&]|[(-~]|\\n|\\')'
 	 * operator = +|*|-|/|=|==|!=|>=|<=|>|<|!|&&| || |
 	 */
-	private static DFA decafDFA = new DFA(
-			"{" +
-			"\"num_states\": 17," +
-			"\"accepting\": [[1, \"Identifier\"], [4, \"StringConst\"], [5, \"IntConst\"], [7, \"DoubleConst\"], [11, \"CharacterConst\"], [12, \"Punctuation\"], [14, \"Operator\"], [15, \"Operator\"]]," +
-			"\"dfa_arr\": [" +
-				//0 (Start)
-				"{ \"a-zA-Z\": 1, \"\\\"\": 2, \"0-9\": 5, \"'\": 8, \";,.{}[]()\": 12, \"&\": 13, \"+*-/\": 14, \"!=<>\": 15, \"|\": 16}," +
-				//1 (ID)
-				"{ \"a-zA-Z0-9\": 1 }," +
-				//2 (String)
-				"{ \"\\\\\": 3, \"^'\\\\\": 2, \"\\\"\": 4}," +
-				//3 (String \)
-				"{ \" -~\": 2 }," +
-				//4 (String F)
-				"{ }," +
-				//5 (Int)
-				"{ \"0-9\": 5, \".\": 6 }," +
-				//6 (Decimal point)
-				"{ \"0-9\": 7 }," +
-				//7 (Float)
-				"{ \"0-9\": 7 }," +
-				//8 (Char)
-				"{ \"\\\\\": 9, \"^'\\\\\": 10 }," +
-				//9 (Char \)
-				"{ \"!-~\": 10 }," +
-				//10 (Char after \)
-				"{ \"'\": 11 }," +
-				//11 (Char F)
-				"{ }," +
-				//12 (Punctuation)
-				"{ }," +
-				//13 (Operator &)
-				"{ \"&\": 14 }," +
-				//14 (Operator F)
-				"{ }," +
-				//15 (Operator =)
-				"{ \"=\": 14 }," +
-				//16 (Operator |)
-				"{ \"|\": 14 }" +
-			"]" +
-			"}"
-			);
-	private static HashSet<String> keywords = keywordsHash();
+	private static DFA decafDFA = new DFA(makemap(map -> {
+		map.put("num_states", 17);
+		map.put("accepting", makelist(list -> {
+			list.add(makelist(list -> 
+						{ list.add(1); list.add(TName.IDENTIFIER); }));
+			list.add(makelist(list ->
+						{ list.add(4); list.add(TName.STRINGLIT); }));
+			list.add(makelist(list ->
+						{ list.add(5); list.add(TName.INTLIT); }));
+			list.add(makelist(list ->
+						{ list.add(7); list.add(TName.DOUBLELIT); }));
+			list.add(makelist(list ->
+						{ list.add(11); list.add(TName.CHARACTERLIT); }));
+			list.add(makelist(list ->
+						{ list.add(12); list.add(TName.PUNCTUATION); }));
+			list.add(makelist(list ->
+						{ list.add(14); list.add(TName.OPERATOR); }));
+			list.add(makelist(list ->
+						{ list.add(15); list.add(TName.OPERATOR); }));
+		}));
+		map.put("dfa_arr", makelist(list -> {
+			list.add(makemap(map -> {
+				map.put("a-zA-Z", 1);
+				map.put("\"", 2);
+				map.put("0-9", 5);
+				map.put("'", 8);
+				map.put(";,.{}[]()", 12);
+				map.put("&", 13);
+				map.put("+*-/", 14);
+				map.put("!=<>", 15);
+				map.put("|", 16);
+				// Start
+			}));
+			list.add(makemap(map -> {
+				map.put("a-zA-Z0-9", 1);
+				// 1 (ID)
+			}));
+			list.add(makemap(map -> {
+				map.put("\\", 3);
+				map.put("^'\\", 2);
+				map.put("\"", 4);
+				// 2 (String)
+			}));
+			list.add(makemap(map -> {
+				map.put(" -~", 2);
+				// 3 (String)
+			}));
+			list.add(makemap(map -> {
+				// 4 (String F)
+			}));
+			list.add(makemap(map -> {
+				map.put("0-9", 5);
+				map.put(".", 6);
+				// 5 (Int)
+			}));
+			list.add(makemap(map -> {
+				map.put("0-9", 7);
+				// 6 (Decimal Point)
+			}));
+			list.add(makemap(map -> {
+				map.put("0-9", 7);
+				// 7 (Float)
+			}));
+			list.add(makemap(map -> {
+				map.put("\\", 9);
+				map.put("^'\\", 10);
+				// 8 (Char),
+			}));
+			list.add(makemap(map -> {
+				map.put("!-~", 10);
+				// 9 (Char \\),
+			}));
+			list.add(makemap(map -> {
+				map.put("'", 11);
+				// 10 (Char after \\),
+			}));
+			list.add(makemap(map -> {
+				// 11 (Char F),
+			}));
+			list.add(makemap(map -> {
+				// 12 (Punctuation),
+			}));
+			list.add(makemap(map -> {
+				map.put("&", 14);
+				// 13 (Operator &),
+			}));
+			list.add(makemap(map -> {
+				// 14 (Operator F),
+			}));
+			list.add(makemap(map -> {
+				map.put("=", 14);
+				// 15 (Operator =),
+			}));
+			list.add(makemap(map -> {
+				map.put("|", 14);
+				// 16 (Operator |)
+			}));
+		}));
+	}));
+	private static HashSet<String> keywords = makeset(set -> {
+        set.add("new");
+        set.add("print");
+        set.add("readint");
+        set.add("readline");
+        set.add("bool");
+        set.add("break");
+        set.add("class");
+        set.add("double");
+        set.add("else");
+        set.add("extends");
+        set.add("for");
+        set.add("if");
+        set.add("implements");
+        set.add("int");
+        set.add("interface");
+        set.add("null");
+        set.add("return");
+        set.add("string");
+        set.add("this");
+        set.add("void");
+        set.add("while");
+	});
 	private int col;
 	private int line;
 
     public Scanner(java.io.InputStream file) {
-        File = file;
+        this.file = file;
     }
-
-	public static HashSet<String> keywordsHash() {
-		HashSet<String> keyset = new HashSet<String>();
-        keyset.add("new");
-        keyset.add("print");
-        keyset.add("readint");
-        keyset.add("readline");
-        keyset.add("bool");
-        keyset.add("break");
-        keyset.add("class");
-        keyset.add("double");
-        keyset.add("else");
-        keyset.add("extends");
-        keyset.add("for");
-        keyset.add("if");
-        keyset.add("implements");
-        keyset.add("int");
-        keyset.add("interface");
-        keyset.add("null");
-        keyset.add("return");
-        keyset.add("string");
-        keyset.add("this");
-        keyset.add("void");
-        keyset.add("while");
-		return keyset;
-	}
 
     public int look() {
         //should look at the next character but not read it
-		File.mark(2);
+		file.mark(2);
 		int theChar;
 		try {
-			theChar = File.read();
-			File.reset();
+			theChar = file.read();
+			file.reset();
 		} catch (IOException e) {
 			return -1;
 		}
@@ -111,7 +165,7 @@ class Scanner {
         //should read the next character
 		char curChar;
 		try {
-			curChar = (char) File.read();
+			curChar = (char) file.read();
 		} catch (IOException e) {
 			return -1;
 		}
@@ -124,7 +178,7 @@ class Scanner {
     }
 
 	void skipSingleLineComment() throws IOException {
-		while (File.available() > 0) {
+		while (file.available() > 0) {
 			switch ((char) getChar()) {
 				case '\n':
 					return;
@@ -135,7 +189,7 @@ class Scanner {
 	}
 
 	void skipMultiLineComment() throws IOException {
-		while (File.available() > 0) {
+		while (file.available() > 0) {
 			switch ((char) getChar()) {
 				case '*':
 					char next = (char) getChar();
@@ -158,7 +212,7 @@ class Scanner {
 				case '\t':
 					break;
 				case '/':
-					File.mark(3);
+					file.mark(3);
 					int curLine = line;
 					int curCol = col;
 					getChar();
@@ -172,7 +226,7 @@ class Scanner {
 						break;
 					}
 					else {
-						File.reset();
+						file.reset();
 						line = curLine;
 						col = curCol;
 						return;
@@ -226,10 +280,10 @@ class Scanner {
 			state = next_state;
 			getChar();
 		}
-		String tkn = decafDFA.token(state);
+		TName tkn = decafDFA.token(state);
 		String accStr = acc.toString();
 		switch (tkn) {
-			case "Identifier":
+			case IDENTIFIER:
 				if (isKeyword(accStr)){
 					return new KeywordToken(accStr, curLine, curCol);
 				}
@@ -242,17 +296,17 @@ class Scanner {
 				else {
 					return new IDToken(accStr, curLine, curCol);
 				}
-			case "IntConst":
+			case INTLIT:
 				return new IntToken(accStr, curLine, curCol);
-			case "DoubleConst":
+			case DOUBLELIT:
 				return new DoubleToken(accStr, curLine, curCol);
-			case "StringConst":
+			case STRINGLIT:
 				return new StringToken(accStr, curLine, curCol);
-			case "CharacterConst":
+			case CHARLIT:
 				return new CharacterToken(accStr, curLine, curCol);
-			case "Operator":
+			case OPERATOR:
 				return new OperatorToken(accStr, curLine, curCol);
-			case "Punctuation":
+			case PUNCTUATION:
 				return new PunctuationToken(accStr, curLine, curCol);
 			default:
 				throw new ScanException("Token type not found");

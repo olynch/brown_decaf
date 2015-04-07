@@ -1,12 +1,12 @@
 package me.owenlynch.brown_decaf;
 
 class StringToken extends Token {
-	String Value;
+	String value;
 	public StringToken(String value, int line, int col) {
-		super(StringConst, value, line, col);
-		Value = value.substring(1, value.length() - 1);
+		super(TName.STRINGLIT, line, col);
+		value = value.substring(1, value.length() - 1);
 	}
 	public String toString() {
-		return "String(" + Value + ")";
+		return "String(" + value + ")";
 	}
 }

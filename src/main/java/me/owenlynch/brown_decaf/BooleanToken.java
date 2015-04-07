@@ -1,12 +1,12 @@
 package me.owenlynch.brown_decaf;
 
 class BooleanToken extends Token {
-	boolean Value;
+	boolean value;
 	public BooleanToken(String value, int line, int col) {
-		super(BooleanConst, "" + value, line, col);
-		Value = (value.equals("true"));
+		super(TName.BOOLEANLIT, line, col);
+		this.value = (value.equals("true"));
 	}
 	public String toString() {
-		return "Boolean(" + Value + ")";
+		return "Boolean(" + value + ")";
 	}
 }

@@ -1,27 +1,18 @@
 package me.owenlynch.brown_decaf
 
 import java.util.HashMap;
+import DataDSL.*;
 
 class Parser {
 	// This is the lookup table for productions
 	// The first dimension is by type of NonTerminal
 	// The second dimension is by type of Token (or Terminal)
-	private static HashMap<NTName, HashMap<Terminal, Production>> table = 
-		createDecafParseTable();
-
-	private static <K, V> HashMap<K, V> makemap(Function<HashMap<K, V>, void> generator) {
-		// DSL for creating HashMaps
-		HashMap<K, V> map = new HashMap<>();
-		generator.apply(map);
-		return map;
-	}
-
-	private static HashMap<NTName, HashMap<Terminal, Production>> createDecafParseTable() {
+	private static HashMap<NTName, HashMap<TName, Production>> table = 
 		// Use DSL to construct HashMap
 		// Note: Check if the generic typing here actually works
-		return makemap(map -> {
+		makemap(map -> {
 			map.put(NTName.START, makemap(imap -> {
-				imap.put(new Terminal())
+
 			}));
 			map.put(NTName.CLASSLIST, makemap(imap -> {
 				
@@ -114,7 +105,6 @@ class Parser {
 				
 			}));
 		});
-	}
 
 	public static ASTNode parse(Deque<Token> input) throws ParseError {
 		// This stack gets both Terminals and NonTerminals pushed onto it
@@ -152,7 +142,7 @@ class Parser {
 				// Find the production corresponding to the type of the
 				// NonTerminal and the type of the next token
 				Production cur = table.get(top.getType())
-					.get(next.Type);
+					.get(next.type);
 				
 				if (cur == null) {
 					throw ParseError("No Production found on Token: " + 

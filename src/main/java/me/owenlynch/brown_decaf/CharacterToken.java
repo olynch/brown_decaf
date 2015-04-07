@@ -1,23 +1,23 @@
 package me.owenlynch.brown_decaf;
 
 class CharacterToken extends Token {
-	char val;
+	char value;
 	public CharacterToken(String inchar, int line, int col) {
-		super(Token.CharConst, inchar, line, col);
+		super(TName.CHARLIT, line, col);
 		String thechar = inchar.substring(1, inchar.length() - 1);
 		switch (thechar) {
 			case "\\n":
-				val = '\n';
+				value = '\n';
 				break;
 			case "\\t":
-				val = '\t';
+				value = '\t';
 				break;
 			default:
 				if (thechar.length() == 1) {
-					val = thechar.charAt(0);
+					value = thechar.charAt(0);
 				}
 				else if (thechar.charAt(0) == '\\') {
-					val = thechar.charAt(1);
+					value = thechar.charAt(1);
 				}
 				//one of these should be true; guaranteed by the dfa
 				break;

@@ -1,12 +1,12 @@
 package me.owenlynch.brown_decaf;
 
 class DoubleToken extends Token {
-	double Value;
+	double value;
 	public DoubleToken(String value, int line, int col) {
-		super(DoubleConst, "" + value, line, col);
-		Value = Double.parseDouble(value);
+		super(TName.DOUBLELIT, line, col);
+		this.value = Double.parseDouble(value);
 	}
 	public String toString() {
-		return "Double(" + Value + ")";
+		return "Double(" + value + ")";
 	}
 }

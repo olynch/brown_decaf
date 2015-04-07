@@ -1,12 +1,12 @@
 package me.owenlynch.brown_decaf;
 
 class IDToken extends Token {
-	String Name;
+	String name;
 	public IDToken(String name, int line, int col) {
-		super(ID, name, line, col);
-		Name = name;
+		super(TName.IDENTIFIER, line, col);
+		this.name = name;
 	}
 	public String toString() {
-		return "ID(" + Name + ", " + Line + ":" + Column + ")";
+		return "ID(" + name + ", " + Line + ":" + Column + ")";
 	}
 }

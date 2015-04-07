@@ -5,58 +5,22 @@
 package me.owenlynch.brown_decaf;
 
 class Token {
-    public static final String
-        IntConst     = "IntConst",
-        DoubleConst  = "DoubleConst",
-        BooleanConst = "BooleanConst",
-        StringConst  = "StringConst",
-		CharConst    = "CharacterConst",
-        ID           = "Identifier",
-        OP           = "Operator",
-		Punc		 = "Punctuation",
-        NEWARRAY     = "NEWARRAY",
-        NEW          = "NEW",
-        PRINT        = "PRINT",
-        READINT      = "READINT",
-        READLINE     = "READLINE",
-        BOOL         = "BOOL",
-        BREAK        = "BREAK",
-        CLASS        = "CLASS",
-        DOUBLE       = "DOUBLE",
-        ELSE         = "ELSE",
-        EXTENDS      = "EXTENDS",
-        FOR          = "FOR",
-        IF           = "IF",
-        IMPLEMENTS   = "IMPLEMENTS",
-        INT          = "INT",
-        INTERFACE    = "INTERFACE",
-        NULL         = "NULL",
-        RETURN       = "RETURN",
-        STRING       = "STRING",
-        THIS         = "THIS",
-        VOID         = "VOID",
-        WHILE        = "WHILE",
-        EOF          = "EOF";
-
-	public final String Type;
-	public final String Text;
-	public final int Line;
-	public final int Column;
+	public final TName type;
+	public final int line;
+	public final int column;
 
 	public Token(String type, String text, int line, int column) {
-		Type = type;
-		Text = text;
-		Line = line;
-		Column = column;
+		this.type = type;
+		this.line = line;
+		this.column = column;
 	}
 
 	public String toString() {
-		return "Token(" + Type + ", \"" + Text + "\", " + Line + ":" + Column + ")";
+		return "Token(" + TName.toString(type) + ", " + Line + ":" + Column + ")";
 	}
 
 	public boolean equals(Token other) {
-		//return (Type == other.Type && Text == other.Text && Line == other.Line && Column == other.Column);
-		return (Type.equals(other.Type) && Text.equals(other.Text));
+		return (type.equals(other.type));
 	}
 
 }

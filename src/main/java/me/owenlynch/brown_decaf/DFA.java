@@ -1,7 +1,6 @@
 package me.owenlynch.brown_decaf;
 
 import java.util.HashSet;
-import org.json.*;
 import java.util.Iterator;
 
 public class DFA {
@@ -18,28 +17,26 @@ public class DFA {
 		dfa[state * 128 + (int) transition] = val;
 	}
 
-	public DFA(String json_desc) {
-		JSONObject desc = new JSONObject(json_desc);
-		numStates = (Integer) desc.get("num_states");
+	public DFA(HashMap<String, Object> desc) {
+		numStates = (Integer) desc.get("numstates");
 		dfa = new int[numStates * 128];
-		for (int i = 0; i < dfa.length; ++i) {
+		for (int i = 0; i < dfa.length; i++) {
 			dfa[i] = -1;
 		}
-		finalStateTokens = new String[numStates];
+		finalStateTokens = new TName[numStates];
 		acceptingStates = new HashSet<Integer>();
-		JSONArray dfa_arr = (JSONArray) desc.get("dfa_arr");
-		JSONArray accepting = (JSONArray) desc.get("accepting");
-		for (int i = 0; i < accepting.length(); i++) {
-			JSONArray state = (JSONArray) accepting.get(i);
+		ArrayList<Object> dfa_arr = (ArrayList<Object>) desc.get("dfa_arr");
+		ArrayList<Object> accepting = (ArrayList<Object>) desc.get("accepting");
+		for (int i = 0; i < accepting.size(); i++) {
+			ArrayList<Object> state = (ArrayList<Object>) accepting.get(i);
 			acceptingStates.add((Integer) state.get(0));
-			finalStateTokens[(Integer) state.get(0)] = (String) state.get(1);
+			finalStateTokens[(Integer) state.get(0)] = TName.fromString((String) state.get(1));
 		}
-		for (int i = 0; i < dfa_arr.length(); i++) {
-			JSONObject curobj = (JSONObject) dfa_arr.get(i);
-			Iterator<String> keys = curobj.keys();
-			while (keys.hasNext()) {
-				String key = keys.next();
-				int val = (Integer) curobj.get(key);
+		for (int i = 0; i < dfa_arr.size(); i++) {
+			HashMap<String, Object> curobj = (HashMap<String, Object>) dfa_arr.get(i);
+			for (Map.Entry<String, Object> entry : curobj.entrySet()) {
+				String key = entry.getKey();
+				Integer val = (Integer) entry.getValue();
 				if (key.length() == 1) {
 					set(i, key.charAt(0), val);
 				}

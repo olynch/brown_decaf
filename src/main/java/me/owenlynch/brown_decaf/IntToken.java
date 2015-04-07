@@ -1,13 +1,13 @@
 package me.owenlynch.brown_decaf;
 
 class IntToken extends Token {
-	int Value;
+	int value;
 	public IntToken(String value, int line, int col) {
-		super(IntConst, "" + value, line, col);
-		Value = Integer.parseInt(value);
+		super(TName.INTLIT, line, col);
+		this.value = Integer.parseInt(value);
 	}
 
 	public String toString() {
-		return "Int(" + Value + ", " + Line + ":" + Column + ")";
+		return "Int(" + value + ", " + Line + ":" + Column + ")";
 	}
 }
