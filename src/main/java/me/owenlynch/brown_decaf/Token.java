@@ -6,8 +6,34 @@ package me.owenlynch.brown_decaf;
 
 class Token implements Symbol {
 	public final SType type;
+	public final String text;
 	public final int line;
 	public final int column;
+
+	private static HashSet<String> keywords = makeset(set -> {
+        set.add("new");
+        set.add("print");
+        set.add("readint");
+        set.add("readline");
+        set.add("bool");
+        set.add("break");
+        set.add("class");
+        set.add("double");
+        set.add("else");
+        set.add("extends");
+        set.add("for");
+        set.add("if");
+        set.add("implements");
+        set.add("int");
+        set.add("interface");
+        set.add("null");
+        set.add("return");
+        set.add("string");
+        set.add("this");
+        set.add("void");
+        set.add("while");
+	});
+
 	public final static HashSet<SType> STypes = makeset(set -> {
 		set.add(SType.NULL);
 		set.add(SType.BOOLEANLIT);
@@ -58,17 +84,38 @@ class Token implements Symbol {
 		set.add(SType.CLOSEBRACE);
 	});
 
-	public Token(SType type, int line, int column) {
-		this.type = type;
+	public Token(TokenType type, String text, int line, int column) {
 		this.line = line;
 		this.column = column;
+		switch (type) {
+			case TokenName.INTLIT:
+				this.type = SType.INTLIT;
+			case TokenName.DOUBLELIT:
+				this.type = SType.DOUBLELIT;
+			case TokenName.CHARLIT:
+				this.type = SType.CHARLIT;
+			case TokenName.STRINGLIT:
+				this.type = SType.STRINGLIT;
+			case TokenName.OPERATOR:
+				this.type = operatorMap.get(text);
+			case TokenName.IDENTIFIER:
+				SType possibleType = identifierMap.get(text);
+				if (possibleType == null) {
+					this.type = IDENTIFIER;
+				}
+				else {
+					this.type = possibleType;
+				}
+			case TokenName.PUNCTUATION:
+				this.type = punctuationMap.get(text);
+			case TokenName.EOF:
+				this.type = SType.EOF;
+		}
 	}
 
-	public Token(SType type) {
+	public Token(TokenType type, String text) {
 		// Used for reference in productions
-		this.type = type;
-		this.line = -1;
-		this.column = -1;
+		Token(type, text, -1, -1);
 	}
 
 	public boolean isTerminal() {
@@ -79,15 +126,19 @@ class Token implements Symbol {
 		return (type == other.type);
 	}
 
-	public Token clone() {
-		return new Token(type);
+    private boolean isKeyword(String name) {
+		return keywords.contains(name);
+    }
+
+	private boolean isBoolConst(String name) {
+		return (name == "true" || name == "false");
+	}
+
+	private boolean isNullConst(String name) {
+		return (name == "null");
 	}
 
 	public String toString() {
-		return "Token(" + SType.toString(type) + ", " + Line + ":" + Column + ")";
-	}
-
-	public boolean equals(Token other) {
-		return (type.equals(other.type));
+		// TODO:
 	}
 }

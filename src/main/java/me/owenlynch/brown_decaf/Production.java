@@ -2,19 +2,19 @@ package me.owenlynch.brown_decaf;
 
 import java.util.ArrayList;
 
-class Production {
-	private SType lhs;
-	private SType[] rhs;
+class Production<T> {
+	private T lhs;
+	private T[] rhs;
 
-	public Production(SType lhs, SType... rhs) {
+	public Production(T rhs, T... rhs) {
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
 
-	public ArrayList<SLRState> getStates() {
-		ArrayList<SLRState> states = new ArrayList<>();
+	public ArrayList<SLRState<T>> getStates() {
+		ArrayList<SLRState<T>> states = new ArrayList<>();
 		for (int i = 0; i <= rhs.length; i++) {
-			states.push(new SLRState(this, i))
+			states.push(new SLRState<T>(this, i))
 		}
 		return states;
 	}

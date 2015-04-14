@@ -11,7 +11,7 @@ import java.util.HashSet;
 class Scanner {
     final InputStream file;
 	/* 
-	 * token = [a-zA-Z0-9_-_]+
+	 * identifier = [a-zA-Z0-9_-_]+
 	 * stringLiteral = "(!|[#-~]|\\n|\\")*"
 	 * int = [0-9]+
 	 * double = [0-9]+\.[0-9]+
@@ -23,21 +23,21 @@ class Scanner {
 		map.put("num_states", 17);
 		map.put("accepting", makelist(list -> {
 			list.add(makelist(list -> 
-						{ list.add(1); list.add(TName.IDENTIFIER); }));
+						{ list.add(1); list.add(TokenType.IDENTIFIER); }));
 			list.add(makelist(list ->
-						{ list.add(4); list.add(TName.STRINGLIT); }));
+						{ list.add(4); list.add(TokenType.STRINGLIT); }));
 			list.add(makelist(list ->
-						{ list.add(5); list.add(TName.INTLIT); }));
+						{ list.add(5); list.add(TokenType.INTLIT); }));
 			list.add(makelist(list ->
-						{ list.add(7); list.add(TName.DOUBLELIT); }));
+						{ list.add(7); list.add(TokenType.DOUBLELIT); }));
 			list.add(makelist(list ->
-						{ list.add(11); list.add(TName.CHARACTERLIT); }));
+						{ list.add(11); list.add(TokenType.CHARACTERLIT); }));
 			list.add(makelist(list ->
-						{ list.add(12); list.add(TName.PUNCTUATION); }));
+						{ list.add(12); list.add(TokenType.PUNCTUATION); }));
 			list.add(makelist(list ->
-						{ list.add(14); list.add(TName.OPERATOR); }));
+						{ list.add(14); list.add(TokenType.OPERATOR); }));
 			list.add(makelist(list ->
-						{ list.add(15); list.add(TName.OPERATOR); }));
+						{ list.add(15); list.add(TokenType.OPERATOR); }));
 		}));
 		map.put("dfa_arr", makelist(list -> {
 			list.add(makemap(map -> {
@@ -118,29 +118,7 @@ class Scanner {
 			}));
 		}));
 	}));
-	private static HashSet<String> keywords = makeset(set -> {
-        set.add("new");
-        set.add("print");
-        set.add("readint");
-        set.add("readline");
-        set.add("bool");
-        set.add("break");
-        set.add("class");
-        set.add("double");
-        set.add("else");
-        set.add("extends");
-        set.add("for");
-        set.add("if");
-        set.add("implements");
-        set.add("int");
-        set.add("interface");
-        set.add("null");
-        set.add("return");
-        set.add("string");
-        set.add("this");
-        set.add("void");
-        set.add("while");
-	});
+
 	private int col;
 	private int line;
 
@@ -244,7 +222,7 @@ class Scanner {
 		try {
 			skipSpace();
 		} catch (IOException e) { //eof
-			return null;
+			return new Token(TokenType.EOF, "", line, column);
 		}
 		int curCol = col;
 		int curLine = line;
@@ -280,54 +258,8 @@ class Scanner {
 			state = next_state;
 			getChar();
 		}
-		TName tkn = decafDFA.token(state);
+		TokenType tkn = decafDFA.token(state);
 		String accStr = acc.toString();
-		switch (tkn) {
-			case IDENTIFIER:
-				if (isKeyword(accStr)){
-					return new KeywordToken(accStr, curLine, curCol);
-				}
-				if (isBoolConst(accStr)) {
-					return new BooleanToken(accStr, curLine, curCol);
-				}
-				if (isNullConst(accStr)) {
-					return new NullToken(accStr, curLine, curCol);
-				}
-				else {
-					return new IDToken(accStr, curLine, curCol);
-				}
-			case INTLIT:
-				return new IntToken(accStr, curLine, curCol);
-			case DOUBLELIT:
-				return new DoubleToken(accStr, curLine, curCol);
-			case STRINGLIT:
-				return new StringToken(accStr, curLine, curCol);
-			case CHARLIT:
-				return new CharacterToken(accStr, curLine, curCol);
-			case OPERATOR:
-				return new OperatorToken(accStr, curLine, curCol);
-			case PUNCTUATION:
-				return new PunctuationToken(accStr, curLine, curCol);
-			default:
-				throw new ScanException("Token type not found");
-		}
+		return new Token(tkn, accStr, line, column);
     }
-
-    private boolean isKeyword(String name){
-		return keywords.contains(name);
-    }
-
-	private boolean isBoolConst(String name) {
-		return (name == "true" || name == "false");
-	}
-
-	private boolean isNullConst(String name) {
-		return (name == "null");
-	}
-    
-    String getIdentifier() {
-        //to implement
-		return "";
-    }
-    
 }
