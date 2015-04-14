@@ -45,8 +45,108 @@ class SLRDFA {
 		return closure(gotoOfI);
 	}
 
-	private static HashSet<SType> follow(SType t) {
-		
+	private static boolean nullable(SType lhs, SType[] rhs, HashSet<SType> alreadyNullable) {
+			for (SType s : p.rhs) {
+				if (! alreadyNullable.contains(s)) {
+					return false;
+				}
+			}
+		return true;
+	}
+
+	private static HashSet<SType> getNullableSet(HashSet<SType> possible, HashMap<SType, HashSet<SType[]>> productions) {
+		HashSet<SType> nullableSet = new HashSet<>();
+		HashSet<SType> newSTypes = new HashSet<>();
+		HashSet<SType> nonNullable = new HashSet<>();
+		for (SType s : productions.keys()) {
+			nonNullable.add(s);
+		}
+		for (SType s : nonNullable) {
+			if (productions.get(s).length = 0) {
+				newSTypes.add(s);
+			}
+		}
+		while (!newSTypes.isEmpty()) {
+			for (SType s : newSTypes) {
+				nullableSet.add(s);
+				newSTypes.remove(s);
+			}
+			for (SType s : nonNullable) {
+				if (nullable(s, productions.get(s), nullableSet)) {
+					newSTypes.add(s);
+					nonNullable.remove(s);
+				}
+			}
+		}
+	}
+
+
+	private static HashMap<SType, HashSet<SType>> getFirstSets(HashSet<SType> nullableSet, HashMap<SType, HashSet<SType[]>> productions) {
+		HashMap<SType, HashSet<SType>> firstSets = new HashMap<>();
+		for (SType s : productions.keys()) {
+			firstSets.put(s, new HashSet<SType>());
+		}
+		boolean addednew = true;
+		HashSet<SType> cur;
+		HashSet<SType> firstOfRHS;
+		while (addednew) {
+			// Fixed point iteration
+			addednew = false;
+			for (SType s : firstSets.keys()) {
+				cur = firstSets.get(s);
+				for (SType[] rhs : productions.get(s)) {
+					if (Token.STypes.contains(rhs[0])) {
+						cur.add(rhs[0]);
+						addednew = true;
+					}
+					int i = 0;
+					do {
+						firstOfRHS = firstSets.get(rhs[i]);
+						if (! firstOfRHS.isEmpty()) {
+							cur.addAll(firstOfRHS);
+							addednew = true;
+						}
+						i++;
+					} while (nullableSet.contains(rhs[i]));
+				}
+			}
+		}
+		return firstSets;
+	}
+
+	private static HashMap<SType, HashSet<SType>> getFollowSets(HashMap<SType, HashSet<SType>> firstSets,
+			HashSet<SType> nullableSet, ArrayList<Production> productions) {
+		HashMap<SType, HashSet<SType>> followSets = new HashMap<>();
+
+		for (Production p : productions) {
+			followSets.put(s.lhs, new HashSet<>());
+		}
+		for (Production p : productions) {
+			for (int i = 0; i < p.rhs.length - 1; i++) {
+				int j = 0;
+				do {
+					followSets.get(rhs[i]).addAll(firstSets.get(rhs[i+1]));
+					j++;
+				} while (nullableSet.contains(rhs[j]));
+			}
+		}
+		boolean addednew = true;
+		HashSet<SType> lhsFollow;
+		while (addednew) {
+			addednew = false;
+			for (Production p : productions) {
+				lhsFollow = followSets.get(p.lhs);
+				if (lhsFollow.isEmpty()) {
+					continue;
+				}
+				int i = p.rhs.length - 1;
+				do {
+					followSets.get(rhs[i]).addAll(lhsFollow);
+					i--;
+				} while (nullbleSet.contains(rhs[i]));
+			}
+		}
+		return followSets;
 	}
 
 	public SLRDFA(ArrayList<Production> productions) {
@@ -131,12 +231,18 @@ class SLRDFA {
 		 * with a left hand side of αBaβ.
 		 */
 
-		HashMap<SType, HashSet<SType>> followSets;
-		for (SType s : NonTerminal.STypes) {
-			followSets.put(follow(s));
+		HashMap<SType, HashSet<SType>> productionsMap = new HashMap<>();
+		for (Production p : productions) {
+			if (! productionsMap.keys().contains(p.lhs)) {
+				productionsMap.put(p.lhs, new HashSet<SType[]>);
+			}
+			productionsMap.get(p.lhs).add(p.rhs);
 		}
+		HashSet<SType> nullableSet = getNullableSet(symUniverse, productionsMap);
+		HashMap<SType, HashSet<SType>> firstSets = getFirstSets(nullableSet, productionsMap);
+		HashMap<SType, HashSet<SType>> followSets = getFollowSets(firstSets, nullableSet, productions);
 
-		 /*
+		/*
 		 * Step 3: Create the parse table
 		 * 
 		 * For every pair (k, a) with k ∈ C and a an input symbol, assign the parsing action as follows:
@@ -153,12 +259,28 @@ class SLRDFA {
 		for (int state = 0; state < canonical.size(); state++) {
 			k = canonical.get(state);
 			for (SType a : symUniverse) {
-				j = slrGoto(k);
+				j = slrGoto(k, a, productions);
 				if (!j.isEmpty) {
 					// then we shift to j on symbol a
 					jState = reverseCanonical.get(j);
 					set(state, a, new SLRActionShift(jState));
-				} else if ()
+				} else {
+					for (SLRState s : k) {
+						if (s.p.rhs.length == s.place && followSets.get(s.p.lhs).contains(a)) {
+							// if s is of the form B → α⋅
+							if (s == startState) {
+								set(state, a, new SLRActionAccept());
+								break;
+							} else {
+								set(state, a, new SLRActionReduce(s.p));
+								break;
+							}
+						}
+					}
+					if (get(state, a) == null) {
+						set(state, a, new SLRActionError());
+					}
+				}
 			}
 		}
 	}
