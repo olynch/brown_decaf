@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 class SLRDFA {
-	private HashMap<Integer, HashMap<SType, SLRAction>> dfa;
+	private SLRAction[] dfa;
 
 	private static HashSet<SLRState> closure(HashSet<SLRState> I, ArrayList<SLRState> universe) {
 		/*
@@ -29,7 +29,7 @@ class SLRDFA {
 		return closureOfI;
 	}
 
-	private static HashSet<SLRState> slrGoto(HashSet<SLRState> I, SType X, ArrayList<SLRState> universe) {
+	private static HashSet<SLRState> slrGoto(HashSet<SLRState> I, int X, ArrayList<SLRState> universe) {
 		/*
 		 * Define goto(I, X) where I is a set of augmented productions and X is a symbol
 		 * as the closure of all items A → αX⋅β such that A → α⋅Xβ ∈ I
@@ -81,7 +81,7 @@ class SLRDFA {
 	}
 
 
-	private static HashMap<SType, HashSet<SType>> getFirstSets(HashSet<SType> nullableSet, HashMap<SType, HashSet<SType[]>> productions) {
+	private static ArrayList<BitSet> getFirstSets(BitSet nullableSet, ArrayList<HashSet<SType[]>> productions, int numSymbols) {
 		HashMap<SType, HashSet<SType>> firstSets = new HashMap<>();
 		for (SType s : productions.keys()) {
 			firstSets.put(s, new HashSet<SType>());
@@ -255,7 +255,7 @@ class SLRDFA {
 		HashMap<SLRState> k;
 		HashMap<SLRState> j;
 		int jState;
-		dfa = new HashMap<>();
+		dfa = new SLRAction[canonical.size() * ];
 		for (int state = 0; state < canonical.size(); state++) {
 			k = canonical.get(state);
 			for (SType a : symUniverse) {

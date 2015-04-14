@@ -1,9 +1,9 @@
 package me.owenlynch.brown_decaf;
 
-class SLRActionReduce<T> implements SLRAction {
-	public final Production<T> production;
+class SLRActionReduce implements SLRAction {
+	public final Production production;
 	
-	public SLRActionReduce(Production<T> production) {
+	public SLRActionReduce(Production production) {
 		this.production = production;
 	}
 

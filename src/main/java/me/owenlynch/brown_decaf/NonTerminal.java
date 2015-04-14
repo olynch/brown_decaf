@@ -1,44 +1,44 @@
 package me.owenlynch.brown_decaf;
 
-import java.util.HashSet;
+import java.util.BitSet;
 
 class NonTerminal extends Symbol {
-	private SType type;
+	private int type;
 	private Symbol[] children;
-	public static final HashSet<SType> STypes = makeset(set -> {
-		set.add(SType.START);
-		set.add(SType.CLASSLIST);
-		set.add(SType.CLASSDEF);
-		set.add(SType.SUPER);
-		set.add(SType.TYPE);
-		set.add(SType.MODIFIER);
-		set.add(SType.MODIFIERLIST);
-		set.add(SType.FIELD);
-		set.add(SType.METHOD);
-		set.add(SType.CTOR);
-		set.add(SType.MEMBERLIST);
-		set.add(SType.FORMALARGS);
-		set.add(SType.FORMALARGLIST);
-		set.add(SType.FORMALARG);
-		set.add(SType.VARDECID);
-		set.add(SType.VARDEC);
-		set.add(SType.BLOCK);
-		set.add(SType.STAT);
-		set.add(SType.STATLIST);
-		set.add(SType.BINARYOP);
-		set.add(SType.NEWARRAYEXPR);
-		set.add(SType.ACTUALARGS);
-		set.add(SType.EXPRLIST);
-		set.add(SType.LITERAL);
-		set.add(SType.DIMENSION);
-		set.add(SType.FIELDEXPR);
-		set.add(SType.ARRAYEXPR);
-		set.add(SType.NONNEWARRAYEXPR);
-		set.add(SType.PRIMARY);
-		set.add(SType.EXPRESSION);
-	});
+	public static final BitSet nonterminals = makebitset(set -> {
+		set.set(SType.START);
+		set.set(SType.CLASSLIST);
+		set.set(SType.CLASSDEF);
+		set.set(SType.SUPER);
+		set.set(SType.TYPE);
+		set.set(SType.MODIFIER);
+		set.set(SType.MODIFIERLIST);
+		set.set(SType.FIELD);
+		set.set(SType.METHOD);
+		set.set(SType.CTOR);
+		set.set(SType.MEMBERLIST);
+		set.set(SType.FORMALARGS);
+		set.set(SType.FORMALARGLIST);
+		set.set(SType.FORMALARG);
+		set.set(SType.VARDECID);
+		set.set(SType.VARDEC);
+		set.set(SType.BLOCK);
+		set.set(SType.STAT);
+		set.set(SType.STATLIST);
+		set.set(SType.BINARYOP);
+		set.set(SType.NEWARRAYEXPR);
+		set.set(SType.ACTUALARGS);
+		set.set(SType.EXPRLIST);
+		set.set(SType.LITERAL);
+		set.set(SType.DIMENSION);
+		set.set(SType.FIELDEXPR);
+		set.set(SType.ARRAYEXPR);
+		set.set(SType.NONNEWARRAYEXPR);
+		set.set(SType.PRIMARY);
+		set.set(SType.EXPRESSION);
+	}, SType.k_TYPES);
 
-	public NonTerminal(SType type) {
+	public NonTerminal(int type) {
 		this.type = type;
 		this.children = null;
 	}
