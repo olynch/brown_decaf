@@ -6,6 +6,11 @@ class StringToken extends Token {
 		super(TName.STRINGLIT, line, col);
 		value = value.substring(1, value.length() - 1);
 	}
+
+	public void setVal(Token other) {
+		value = other.value;
+	}
+
 	public String toString() {
 		return "String(" + value + ")";
 	}

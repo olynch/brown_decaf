@@ -25,6 +25,11 @@ class PunctuationToken extends Token {
 		}
 	}
 
+	public void setVal(Token other) {
+		value = other.value;
+	}
+
+
 	public String toString() {
 		return "Punctuation(\"" + type.toString() + "\", " + line + ":" + column + ")";
 	}

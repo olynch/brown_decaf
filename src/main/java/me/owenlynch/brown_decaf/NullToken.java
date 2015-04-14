@@ -5,6 +5,10 @@ class NullToken extends Token {
 		super(Token.NULL, str, line, col);
 	}
 
+
+	public void setVal(Token other) {
+	}
+
 	public String toString() {
 		return "Null";
 	}

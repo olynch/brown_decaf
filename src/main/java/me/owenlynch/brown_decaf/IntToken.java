@@ -7,6 +7,10 @@ class IntToken extends Token {
 		this.value = Integer.parseInt(value);
 	}
 
+	public void setVal(Token other) {
+		value = other.value;
+	}
+
 	public String toString() {
 		return "Int(" + value + ", " + Line + ":" + Column + ")";
 	}

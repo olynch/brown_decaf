@@ -6,6 +6,9 @@ class IDToken extends Token {
 		super(TName.IDENTIFIER, line, col);
 		this.name = name;
 	}
+	public void setVal(Token other) {
+		value = other.value;
+	}
 	public String toString() {
 		return "ID(" + name + ", " + Line + ":" + Column + ")";
 	}

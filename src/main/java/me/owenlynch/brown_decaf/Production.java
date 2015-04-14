@@ -1,31 +1,31 @@
 package me.owenlynch.brown_decaf;
 
-class Production {
-	private Symbol[] rhs;
+import java.util.ArrayList;
 
-	public Production(Symbol[] rhs) {
+class Production {
+	private SType lhs;
+	private SType[] rhs;
+
+	public Production(SType lhs, SType... rhs) {
+		this.lhs = lhs;
 		this.rhs = rhs;
 	}
 
-	public Symbol[] getRHS() {
-		Symbol newRHS = rhs.clone();
-		for (int i = 0; i < rhs.length(); i++) {
-			newRHS[i] = newRHS[i].clone();
+	public ArrayList<SLRState> getStates() {
+		ArrayList<SLRState> states = new ArrayList<>();
+		for (int i = 0; i <= rhs.length; i++) {
+			states.push(new SLRState(this, i))
 		}
-		return newRHS;
+		return states;
 	}
 
-	public void setChildren(NonTerminal parent, Symbol[] children) {
-		switch lhs {
-			"Start":
-			"ClassList":
-			"Class":
-			"Super":
-			"PrimitiveType":
-			"Type":
-			"Modifier":
-			"ModifierList":
-
-		}
-	}
+	/*
+	 *public Symbol[] getRHS() {
+	 *    Symbol newRHS = rhs.clone();
+	 *    for (int i = 0; i < rhs.length(); i++) {
+	 *        newRHS[i] = newRHS[i].clone();
+	 *    }
+	 *    return newRHS;
+	 *}
+	 */
 }

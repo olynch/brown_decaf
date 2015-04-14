@@ -2,6 +2,7 @@ package me.owenlynch.brown_decaf;
 
 class CharacterToken extends Token {
 	char value;
+
 	public CharacterToken(String inchar, int line, int col) {
 		super(TName.CHARLIT, line, col);
 		String thechar = inchar.substring(1, inchar.length() - 1);
@@ -22,5 +23,9 @@ class CharacterToken extends Token {
 				//one of these should be true; guaranteed by the dfa
 				break;
 		}
+	}
+
+	public void setVal(Token other) {
+		value = other.value;
 	}
 }

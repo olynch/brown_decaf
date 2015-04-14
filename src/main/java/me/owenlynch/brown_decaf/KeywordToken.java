@@ -29,6 +29,11 @@ class KeywordToken extends Token {
 			type = TName.valueOf(text.toUpperCase());
 		}
 	}
+
+	public void setVal(Token other) {
+		value = other.value;
+	}
+
 	public String toString() {
 		return "Keyword(<" + value + ">, " + Line + ":" + Column + ")";
 	}

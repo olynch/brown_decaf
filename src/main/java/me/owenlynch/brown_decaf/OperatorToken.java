@@ -35,6 +35,11 @@ class OperatorToken extends Token {
 		}
 	}
 
+
+	public void setVal(Token other) {
+		value = other.value;
+	}
+
 	public String toString() {
 		return "Operator(" + type.toString() + ", " + line + ":" + column + ")";
 	}
