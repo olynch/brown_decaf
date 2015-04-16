@@ -1,0 +1,52 @@
+Operators and their associativity:
+
+NULLABLE:
+Super
+MemberList
+ModifierList
+FormalArgList
+ArrayStuff
+StatList
+ExprList
+
+FIRST:
+Start = { "class" }
+ClassList = { "class" }
+Class = { "class" }
+Super = { "extends" }
+PrimitiveType = { "boolean", "char", "int", "double", "void" }
+Type = PrimitiveType ∪ { identifier }
+Modifier = { "static", "public", "private", "protected" }
+ModifierList = Modifier
+Field = Modifier ∪ Type
+Method = Modifier ∪ Type
+Ctor = Modifier
+MemberList = Modifier ∪ Type
+FormalArgs = { "(" }
+FormalArgList = Type
+FormalArg = Type
+VarDecId = { identifier }
+VarDec = VarDecId
+VarDecList = VarDecId
+Block = { "{" }
+Stat = { ";", "if", "while", "super", "continue", "break", "return" } ∪ Type ∪ Block ∪ Expression
+StatList = Stat
+BinaryOp = { "=", "|", "&", "=", "!", "<", ">", "+", "-", "*", "/", "/", "%" }
+NewArrayExpr = { "new" }
+ActualArgs = { "(" }
+ExprList = Expression
+Literal = { "null", "true", "false", intLiteral, charLiteral, stringLiteral, doubleLiteral }
+Dimension = { "[" }
+FieldExpr = { "super", "this", "new", identifier, "(" } ∪ Literal
+ArrayExpr = { identifier, "this", "new", identifier, "super", "(", }
+NonNewArrayExpr = { "this", "new", identifier, "super", "(" } ∪ NonNewArrayExpr ∪ ArrayExpr ∪ Literal
+Primary = NewArrayExpr ∪ { "identifier" } ∪ NonNewArrayExpr
+Expression = UnaryOp ∪ Primary
+
+FOLLOW:
+Start = {}
+ClassList = { $, "class" }
+Class = { $, "class" }
+Super = { "{" }
+Field = 
+MemberList = FIRST(Field) ∪ FIRST(Method) ∪ FIRST(Ctor) ∪ { "}" }
