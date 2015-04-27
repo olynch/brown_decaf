@@ -1,6 +1,7 @@
 package me.owenlynch.brown_decaf;
 
 import java.util.BitSet;
+import DataDSL.*;
 
 class NonTerminal extends Symbol {
 	private int type;
