@@ -3,10 +3,10 @@ package me.owenlynch.brown_decaf;
 import java.util.ArrayList;
 
 class Production {
-	private int lhs;
-	private int[] rhs;
+	public final int lhs;
+	public final int[] rhs;
 
-	public Production(int rhs, int... rhs) {
+	public Production(int lhs, int... rhs) {
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -14,7 +14,7 @@ class Production {
 	public ArrayList<SLRState> getStates() {
 		ArrayList<SLRState> states = new ArrayList<>();
 		for (int i = 0; i <= rhs.length; i++) {
-			states.push(new SLRState(this, i))
+			states.add(new SLRState(this, i));
 		}
 		return states;
 	}

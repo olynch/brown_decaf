@@ -1,19 +1,21 @@
-class SLRState<T> {
-	public final Production<T> p;
+package me.owenlynch.brown_decaf;
+
+class SLRState {
+	public final Production p;
 	public final int place;
 
-	public SLRState(Production<T> p, int place) {
+	public SLRState(Production p, int place) {
 		this.p = p;
 		this.place = place;
 	}
 	
-	public boolean epsilonLink(SLRState<T> other) {
+	public boolean epsilonLink(SLRState other) {
 		// This is true if
 		// A → α⋅Cβ
 		// C → ⋅d
 		if (other.place == 0) {
 			for (int i = 0; i < p.rhs.length; i++) {
-				T s = p.rhs[i];
+				int s = p.rhs[i];
 				if (s == other.p.lhs && place == i) {
 					return true;
 				}
@@ -22,7 +24,7 @@ class SLRState<T> {
 		return false;
 	}
 
-	public boolean linkOnX(SLRState<T> other, SType X) {
+	public boolean linkOnX(SLRState other, int X) {
 		// This is true if
 		// A → α⋅Cβ
 		// A → αC⋅β

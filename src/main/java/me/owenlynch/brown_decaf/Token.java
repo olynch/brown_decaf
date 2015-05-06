@@ -3,6 +3,8 @@
 //Token.java
 
 package me.owenlynch.brown_decaf;
+import java.util.HashSet;
+import java.util.BitSet;
 
 class Token implements Symbol {
 	public final SType type;
@@ -34,55 +36,60 @@ class Token implements Symbol {
         set.add("while");
 	});
 
-	public final static HashSet<SType> STypes = makeset(set -> {
-		set.add(SType.NULL);
-		set.add(SType.BOOLEANLIT);
-		set.add(SType.INTLIT);
-		set.add(SType.CHARLIT);
-		set.add(SType.STRINGLIT);
-		set.add(SType.DOUBLELIT);
-		set.add(SType.IDENTIFIER);
-		set.add(SType.PRIMITIVETYPE);
-		set.add(SType.MODIFIER);
-		set.add(SType.WHILE);
-		set.add(SType.RETURN);
-		set.add(SType.CONTINUE);
-		set.add(SType.NEW);
-		set.add(SType.BREAK);
-		set.add(SType.CLASS);
-		set.add(SType.ELSE);
-		set.add(SType.EXTENDS);
-		set.add(SType.FOR);
-		set.add(SType.IF);
-		set.add(SType.THIS);
-		set.add(SType.VOID);
-		set.add(SType.BREAK);
-		set.add(SType.SUPER);
-		set.add(SType.OPERATOR);
-		set.add(SType.EQUALS);
-		set.add(SType.PIPEPIPE);
-		set.add(SType.AMPAMP);
-		set.add(SType.EQUALSEQUALS);
-		set.add(SType.BANGEQUALS);
-		set.add(SType.LT);
-		set.add(SType.GT);
-		set.add(SType.LTEQUALS);
-		set.add(SType.GTEQUALS);
-		set.add(SType.PLUS);
-		set.add(SType.MINUS);
-		set.add(SType.STAR);
-		set.add(SType.SLASH);
-		set.add(SType.PERCENT);
-		set.add(SType.COMMA);
-		set.add(SType.SEMICOLON);
-		set.add(SType.PERIOD);
-		set.add(SType.OPENBRACKET);
-		set.add(SType.CLOSEBRACKET);
-		set.add(SType.OPENPAREN);
-		set.add(SType.CLOSEPAREN);
-		set.add(SType.OPENBRACE);
-		set.add(SType.CLOSEBRACE);
-	});
+	public final static BitSet tokens = makebitset(set -> {
+		set.set(SType.NULL.ordinal());
+		set.set(SType.BOOLEANLIT.ordinal());
+		set.set(SType.INTLIT.ordinal());
+		set.set(SType.CHARLIT.ordinal());
+		set.set(SType.STRINGLIT.ordinal());
+		set.set(SType.DOUBLELIT.ordinal());
+		set.set(SType.IDENTIFIER.ordinal());
+		set.set(SType.PRIMITIVETYPE.ordinal());
+		set.set(SType.MODIFIER.ordinal());
+		set.set(SType.WHILE.ordinal());
+		set.set(SType.RETURN.ordinal());
+		set.set(SType.CONTINUE.ordinal());
+		set.set(SType.NEW.ordinal());
+		set.set(SType.BREAK.ordinal());
+		set.set(SType.CLASS.ordinal());
+		set.set(SType.ELSE.ordinal());
+		set.set(SType.EXTENDS.ordinal());
+		set.set(SType.FOR.ordinal());
+		set.set(SType.IF.ordinal());
+		set.set(SType.THIS.ordinal());
+		set.set(SType.VOID.ordinal());
+		set.set(SType.BREAK.ordinal());
+		set.set(SType.SUPER.ordinal());
+		set.set(SType.OPERATOR.ordinal());
+		set.set(SType.EQUALS.ordinal());
+		set.set(SType.PIPEPIPE.ordinal());
+		set.set(SType.AMPAMP.ordinal());
+		set.set(SType.EQUALSEQUALS.ordinal());
+		set.set(SType.BANGEQUALS.ordinal());
+		set.set(SType.BANG.ordinal());
+		set.set(SType.LT.ordinal());
+		set.set(SType.GT.ordinal());
+		set.set(SType.LTEQUALS.ordinal());
+		set.set(SType.GTEQUALS.ordinal());
+		set.set(SType.PLUS.ordinal());
+		set.set(SType.MINUS.ordinal());
+		set.set(SType.STAR.ordinal());
+		set.set(SType.SLASH.ordinal());
+		set.set(SType.PERCENT.ordinal());
+		set.set(SType.COMMA.ordinal());
+		set.set(SType.SEMICOLON.ordinal());
+		set.set(SType.PERIOD.ordinal());
+		set.set(SType.OPENBRACKET.ordinal());
+		set.set(SType.CLOSEBRACKET.ordinal());
+		set.set(SType.OPENPAREN.ordinal());
+		set.set(SType.CLOSEPAREN.ordinal());
+		set.set(SType.OPENBRACE.ordinal());
+		set.set(SType.CLOSEBRACE.ordinal());
+	}, SType.values());
+
+	public static boolean isToken(int t) {
+		return tokens.get(t);
+	}
 
 	public Token(TokenType type, String text, int line, int column) {
 		this.line = line;

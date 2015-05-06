@@ -7,37 +7,40 @@ class NonTerminal extends Symbol {
 	private int type;
 	private Symbol[] children;
 	public static final BitSet nonterminals = makebitset(set -> {
-		set.set(SType.START);
-		set.set(SType.CLASSLIST);
-		set.set(SType.CLASSDEF);
-		set.set(SType.SUPER);
-		set.set(SType.TYPE);
-		set.set(SType.MODIFIER);
-		set.set(SType.MODIFIERLIST);
-		set.set(SType.FIELD);
-		set.set(SType.METHOD);
-		set.set(SType.CTOR);
-		set.set(SType.MEMBERLIST);
-		set.set(SType.FORMALARGS);
-		set.set(SType.FORMALARGLIST);
-		set.set(SType.FORMALARG);
-		set.set(SType.VARDECID);
-		set.set(SType.VARDEC);
-		set.set(SType.BLOCK);
-		set.set(SType.STAT);
-		set.set(SType.STATLIST);
-		set.set(SType.BINARYOP);
-		set.set(SType.NEWARRAYEXPR);
-		set.set(SType.ACTUALARGS);
-		set.set(SType.EXPRLIST);
-		set.set(SType.LITERAL);
-		set.set(SType.DIMENSION);
-		set.set(SType.FIELDEXPR);
-		set.set(SType.ARRAYEXPR);
-		set.set(SType.NONNEWARRAYEXPR);
-		set.set(SType.PRIMARY);
-		set.set(SType.EXPRESSION);
-	}, SType.k_TYPES);
+		set.set(SType.START.ordinal());
+		set.set(SType.CLASSLIST.ordinal());
+		set.set(SType.CLASSDEF.ordinal());
+		set.set(SType.SUPERDEC.ordinal());
+		set.set(SType.TYPE.ordinal());
+		set.set(SType.MODIFIERLIST.ordinal());
+		set.set(SType.FIELD.ordinal());
+		set.set(SType.METHOD.ordinal());
+		set.set(SType.CTOR.ordinal());
+		set.set(SType.MEMBERLIST.ordinal());
+		set.set(SType.FORMALARGS.ordinal());
+		set.set(SType.FORMALARGLIST.ordinal());
+		set.set(SType.FORMALARG.ordinal());
+		set.set(SType.VARDECID.ordinal());
+		set.set(SType.VARDEC.ordinal());
+		set.set(SType.BLOCK.ordinal());
+		set.set(SType.STAT.ordinal());
+		set.set(SType.STATLIST.ordinal());
+		set.set(SType.BINARYOP.ordinal());
+		set.set(SType.NEWARRAYEXPR.ordinal());
+		set.set(SType.ACTUALARGS.ordinal());
+		set.set(SType.EXPRLIST.ordinal());
+		set.set(SType.LITERAL.ordinal());
+		set.set(SType.DIMENSION.ordinal());
+		set.set(SType.FIELDEXPR.ordinal());
+		set.set(SType.ARRAYEXPR.ordinal());
+		set.set(SType.NONNEWARRAYEXPR.ordinal());
+		set.set(SType.PRIMARY.ordinal());
+		set.set(SType.EXPRESSION.ordinal());
+	}, SType.values());
+
+	public static boolean isNonTerminal(int t) {
+		return nonterminals.get(t);
+	}
 
 	public NonTerminal(int type) {
 		this.type = type;

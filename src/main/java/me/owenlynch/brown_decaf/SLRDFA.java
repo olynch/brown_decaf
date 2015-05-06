@@ -2,9 +2,19 @@ package me.owenlynch.brown_decaf;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.BitSet;
+import java.util.ArrayList;
 
 class SLRDFA {
 	private SLRAction[] dfa;
+
+	private static ArrayList<SLRState> makeAugmentedProduction(ArrayList<Production> productions) {
+		ArrayList<SLRState> augmentedProductions = new ArrayList<>();
+		for (Production p : productions) {
+			augmentedProductions.addAll(p.getStates());
+		}
+		return augmentedProductions;
+	}
 
 	private static HashSet<SLRState> closure(HashSet<SLRState> I, ArrayList<SLRState> universe) {
 		/*
@@ -17,8 +27,8 @@ class SLRDFA {
 		newStates.addAll(I);
 		while (!newStates.isEmpty()) {
 			for (SLRState s : newStates) {
-				for (SLState t : universe) {
-					if (s.epsilonPath(t)) {
+				for (SLRState t : universe) {
+					if (s.epsilonLink(t)) {
 						newStates.add(t);
 					}
 				}
@@ -38,94 +48,120 @@ class SLRDFA {
 		for (SLRState s : I) {
 			for (SLRState t : universe) {
 				if (s.linkOnX(t, X)) {
-					gotoOfI.add(X)
+					gotoOfI.add(t);
 				}
 			}
 		}
-		return closure(gotoOfI);
+		return closure(gotoOfI, universe);
 	}
 
-	private static boolean nullable(SType lhs, SType[] rhs, HashSet<SType> alreadyNullable) {
-			for (SType s : p.rhs) {
-				if (! alreadyNullable.contains(s)) {
+	private static boolean nullable(int lhs, HashSet<int[]> rhsides, BitSet alreadyNullable) {
+		for (int[] rhs : rhsides) {
+			for (int s : rhs) {
+				if (! alreadyNullable.get(s)) {
 					return false;
 				}
 			}
+		}
 		return true;
 	}
 
-	private static HashSet<SType> getNullableSet(HashSet<SType> possible, HashMap<SType, HashSet<SType[]>> productions) {
-		HashSet<SType> nullableSet = new HashSet<>();
-		HashSet<SType> newSTypes = new HashSet<>();
-		HashSet<SType> nonNullable = new HashSet<>();
-		for (SType s : productions.keys()) {
-			nonNullable.add(s);
+	private static BitSet getNullableSet(BitSet symbols, ArrayList<HashSet<int[]>> productions) {
+		BitSet nullableSet = new BitSet();
+		BitSet newSTypes = new BitSet();
+		BitSet nonNullable = new BitSet();
+		for (int s = 0; s < symbols.length(); s++) {
+			if (symbols.get(s)) nonNullable.set(s);
 		}
-		for (SType s : nonNullable) {
-			if (productions.get(s).length = 0) {
-				newSTypes.add(s);
-			}
-		}
-		while (!newSTypes.isEmpty()) {
-			for (SType s : newSTypes) {
-				nullableSet.add(s);
-				newSTypes.remove(s);
-			}
-			for (SType s : nonNullable) {
-				if (nullable(s, productions.get(s), nullableSet)) {
-					newSTypes.add(s);
-					nonNullable.remove(s);
+		for (int s = 0; s < nonNullable.length(); s++) {
+			/*
+			 * If s is currently in nonNullable, and it has a production going to an empty lhs
+			 */
+			if (nonNullable.get(s)) {
+				for (int[] lhs : productions.get(s)) {
+					if (lhs.length == 0) {
+						newSTypes.set(s);
+						nonNullable.set(s, false);
+						break;
+					}
 				}
 			}
 		}
+		while (!newSTypes.isEmpty()) {
+			for (int s = 0; s < symbols.length(); s++) {
+				if (newSTypes.get(s)) {
+					nullableSet.set(s);
+					newSTypes.set(s, false);
+				}
+			}
+			for (int s = 0; s < symbols.length(); s++) {
+				if (nonNullable.get(s)) {
+					if (nullable(s, productions.get(s), nullableSet)) {
+						newSTypes.set(s);
+						nonNullable.set(s, false);
+					}
+				}
+			}
+		}
+		return nullableSet;
 	}
 
 
-	private static ArrayList<BitSet> getFirstSets(BitSet nullableSet, ArrayList<HashSet<SType[]>> productions, int numSymbols) {
-		HashMap<SType, HashSet<SType>> firstSets = new HashMap<>();
-		for (SType s : productions.keys()) {
-			firstSets.put(s, new HashSet<SType>());
+	private static ArrayList<BitSet> getFirstSets(BitSet nullableSet, ArrayList<HashSet<int[]>> productions, BitSet nonterminals, BitSet terminals) {
+		/*
+		 * Returns an ArrayList of BitSets, where firstSet[n][m] is true if and only if m is terminal and can appear
+		 * as the first element of a derivation from n
+		 */
+		ArrayList<BitSet> firstSets = new ArrayList<>(nonterminals.length());
+		for (Production p : productions) {
+			firstSets.set(p.lhs, new BitSet());
 		}
 		boolean addednew = true;
-		HashSet<SType> cur;
-		HashSet<SType> firstOfRHS;
+		BitSet cur;
+		BitSet firstOfRHS;
 		while (addednew) {
 			// Fixed point iteration
 			addednew = false;
-			for (SType s : firstSets.keys()) {
+			for (int s = 0; s < nonterminals.length(); s++) {
 				cur = firstSets.get(s);
-				for (SType[] rhs : productions.get(s)) {
-					if (Token.STypes.contains(rhs[0])) {
-						cur.add(rhs[0]);
-						addednew = true;
+				if (cur == null) {
+					for (int[] rhs : productions.get(s)) {
+						int i = 0;
+						do {
+							if (terminals.get(rhs[i])) {
+								cur.add(rhs[i]);
+								addednew = true;
+								break; //it's automatically in nullableSet, so we can leave early
+							}
+							else { // it's a nonterminal
+								firstOfRHS = firstSets.get(rhs[i]);
+								if (firstOfRHS != null && (! firstOfRHS.isEmpty())) {
+									cur.union(firstOfRHS);
+									addednew = true;
+								}
+							}
+							i++;
+						} while (i < rhs.length && nullableSet.contains(rhs[i]));
 					}
-					int i = 0;
-					do {
-						firstOfRHS = firstSets.get(rhs[i]);
-						if (! firstOfRHS.isEmpty()) {
-							cur.addAll(firstOfRHS);
-							addednew = true;
-						}
-						i++;
-					} while (nullableSet.contains(rhs[i]));
 				}
 			}
 		}
 		return firstSets;
 	}
 
-	private static HashMap<SType, HashSet<SType>> getFollowSets(HashMap<SType, HashSet<SType>> firstSets,
-			HashSet<SType> nullableSet, ArrayList<Production> productions) {
-		HashMap<SType, HashSet<SType>> followSets = new HashMap<>();
+	private static ArrayList<BitSet> getFollowSets(ArrayList<BitSet> firstSets,
+			BitSet nullableSet, ArrayList<Production> productions) {
+		ArrayList<BitSet> followSets = new ArrayList<>(firstSets.size());
 
 		for (Production p : productions) {
-			followSets.put(s.lhs, new HashSet<>());
+			followSets.set(s.lhs, new BitSet());
 		}
+
 		for (Production p : productions) {
 			for (int i = 0; i < p.rhs.length - 1; i++) {
 				int j = 0;
 				do {
-					followSets.get(rhs[i]).addAll(firstSets.get(rhs[i+1]));
+					followSets.get(rhs[i]).union(firstSets.get(rhs[i+1]));
 					j++;
 				} while (nullableSet.contains(rhs[j]));
 			}
@@ -162,10 +198,7 @@ class SLRDFA {
 		 * A → α⋅β
 		 * A → αβ⋅
 		 */
-		ArrayList<SLRState> augmentedProductions = new ArrayList<>();
-		for (Production p : production) {
-			augmentedProductions.addAll(p.getStates());
-		}
+		ArrayList<SLRState> augmentedProductions = makeAugmentedProduction(productions);
 		// Note that what we want to be our first production, ie. S' → ⋅S, is still at index 0
 
 		/*
@@ -179,7 +212,7 @@ class SLRDFA {
 		 * as the closure of all items A → αX⋅β such that A → α⋅Xβ ∈ I
 		 */
 
-		 /*
+		/*
 		 * Step 2: Create the canonical collection of sets of augmented productions (AKA LR(0) items)
 		 * 
 		 * Procedure:

@@ -1,31 +1,33 @@
 package me.owenlynch.brown_decaf;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.function.Consumer;
 
 class DataDSL {
-	public <K, V> HashMap<K, V> makemap(Function<HashMap<K, V>, void> generator) {
+	public static <K, V> HashMap<K, V> makemap(Consumer<HashMap<K, V>> generator) {
 		HashMap<K, V> map = new HashMap<>();
-		generator.call(map);
+		generator.accept(map);
 		return map;
 	}
 
-	public <E> ArrayList<E> makelist(Function<ArrayList<E>, void> generator) {
+	public static <E> ArrayList<E> makelist(Consumer<ArrayList<E>> generator) {
 		ArrayList<E> list = new ArrayList<>();
-		generator.call(list);
+		generator.accept(list);
 		return list;
 	}
 
-	public <E> HashSet<E> makeset(Function<HashSet<E>, void> generator) {
+	public static <E> HashSet<E> makeset(Consumer<HashSet<E>> generator) {
 		HashSet<E> set = new HashSet<>();
-		generator.call(set);
+		generator.accept(set);
 		return set;
 	}
 
-	public BitSet makebitset(Function<BitSet, void> generator, int length) {
+	public static BitSet makebitset(Consumer<BitSet> generator, int length) {
 		BitSet set = new BitSet(length);
-		generator.call(set);
+		generator.accept(set);
 		return set;
 	}
 }
