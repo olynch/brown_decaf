@@ -1,15 +1,16 @@
 package me.owenlynch.brown_decaf;
 
-import java.util.HashMap;
 import java.util.ArrayList;
-import me.owenlynch.brown_decaf.DataDSL.*;
+import java.util.Deque;
+import java.util.ArrayDeque;
+import static me.owenlynch.brown_decaf.DataDSL.*;
 
 class Parser {
 	// This is the lookup table for productions
 	// The first dimension is by type of NonTerminal
 	// The second dimension is by type of Token (or Terminal)
 
-	private static ArrayList<Production> productions = DataDSL.makelist(list -> {
+	private static ArrayList<Production> productions = makelist(list -> {
 			list.add(new Production(SType.START.ordinal(), SType.CLASSLIST.ordinal(), SType.EOF.ordinal()));
 			list.add(new Production(SType.CLASSLIST.ordinal(), SType.CLASS.ordinal(), SType.CLASSLIST.ordinal()));
 			list.add(new Production(SType.CLASSLIST.ordinal(), SType.CLASS.ordinal()));
@@ -111,99 +112,48 @@ class Parser {
 			list.add(new Production(SType.EXPRLIST.ordinal(), SType.EXPRESSION.ordinal(), SType.COMMA.ordinal(), SType.EXPRLIST.ordinal()));
 	});
 
-	private static SLRDFA slr_table = new SLRDFA(productions);
-/*
- *
- *    public static NonTerminal parse(Deque<Token> input) throws ParseError {
- *        // This stack gets both Terminals and NonTerminals pushed onto it
- *        // Whenever a NonTerminal gets replaced by a production, the
- *        // right hand side of the production gets pushed onto the stack,
- *        // but also become children of the Terminal of the left hand side
- *        // of the production.
- *        Deque<Symbol> stack = new Deque<>();
- *
- *        // The begining NonTerminal
- *        NonTerminal start = new StartNode();
- *        stack.push(start);
- *        while (!stack.empty()) {
- *            Symbol top = stack.pop();
- *            Token next = input.top();
- *            if (top.isTerminal()) {
- *                // Make sure that the terminal on the top of the input matches
- *                // what we expect on the top of the stack. If it does,
- *                // get the internal value of the token on the
- *                // top of the input stack, then pop it.
- *                // It may be the case that we don't care about whatever is on the
- *                // top of the stack: we just need to match it because it is
- *                // a syntactic detail and the input needs to get popped.
- *                // If we do care about the value of this terminal
- *                // it was already added to the syntax tree when
- *                // it was placed on the stack, so we don't have to worry about
- *                // popping it.
- *                if (! top.matches(next)) {
- *                    throw ParseError("Expected: " + top.toString() + " Found: " + next.toString());
- *                }
- *                top.setVal(next);
- *                input.pop();
- *            }
- *            else {
- *                // Find the production corresponding to the type of the
- *                // NonTerminal and the type of the next token
- *                Production cur = table.get(top.getType())
- *                    .get(next.type);
- *                
- *                if (cur == null) {
- *                    throw ParseError("No Production found on Token: " + 
- *                            next.toString());
- *                }
- *
- *                // Symbols are instantiated to default values
- *                // Their values will be updated when they themselves are
- *                // popped
- *                Symbol[] newSyms = cur.getLHS();
- *                // Add the new symbols to the AST
- *                cur.setChildren(top, newSyms);
- *                // Push them back onto the stack
- *                for (Symbol s : newSyms ) {
- *                    stack.push(s);
- *                }
- *            }
- *        }
- *        return start;
- *    }
- */
 
-	class SLREntry {
-		public final Symbol sym;
-		public final int state;
+	// Need to figure out what the best format for this is
+	public static ArrayList<BitSetIterable> precedenceRules = makelist(list -> {
+		list.add(makebitset(set -> {
+		}));
+	});
 
-		public SLREntry(Symbol sym, int state) {
-			this.sym = sym;
-			this.state = state;
-		}
-	}
+	private static SLRDFA slr_table = new SLRDFA(productions, SymbolUniverse.JavaSymbols);
 
 	public static NonTerminal slr_parse(Deque<Symbol> input) {
-		Deque<SLREntry> stack = new Deque<>();
-		stack.push(slr_table.startState());
+		Deque<Integer> stateStack = new ArrayDeque<Integer>();
+		Deque<Symbol> symbolStack = new ArrayDeque<Symbol>();
+		stateStack.add(slr_table.startState());
 		Symbol next;
 		SLRAction action;
+		SLRActionShift saction;
+		SLRActionReduce raction;
+		SLRActionGo gaction;
 		while (true) {
 			next = input.pop();
-			action = table.get();
-			SLRState newState = state.createFrom(next);
-			if (newState == null) {
-				// error
-			} else if (newState.isShift()) {
-				stack.push(newState);
-			} else if (newState.isReduce()) {
-				ArrayList<SLREntry> children = new ArrayList<>();
-				for (int i = 0; i < newState.numLHS(); i++) {
-					children.push(stack.pop());
+			action = slr_table.get(stateStack.peek(), next.type());
+			switch (action.getType()) {
+			case SLRAction.SHIFT:
+				saction = (SLRActionShift) action;
+				stateStack.push(saction.state);
+				symbolStack.push(next);
+			case SLRAction.REDUCE:
+				raction = (SLRActionReduce) action;
+				ArrayList<Symbol> children = new ArrayList<>();
+				NonTerminal newSym = new NonTerminal(raction.production.lhs);
+				for (int i = 0; i < raction.production.rhs.length; i++) {
+					children.add(symbolStack.pop());
+					stateStack.pop();
 				} 
-				stack.push(newState.createNonTerminal(children));
-			} else if (newState.isAccepting()) {
-				return stack.top().sym;
+				newSym.setChildren((Symbol[]) children.toArray());
+				symbolStack.push(newSym);
+				gaction = (SLRActionGo) slr_table.get(stateStack.peek(), newSym.type());
+				stateStack.push(gaction.state);
+			case SLRAction.ACCEPT:
+				return (NonTerminal) symbolStack.pop();
+			case SLRAction.ERROR:
+				//error
 			}
 		}
 	}

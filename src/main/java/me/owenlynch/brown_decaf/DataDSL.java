@@ -3,7 +3,6 @@ package me.owenlynch.brown_decaf;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.function.Consumer;
 
 class DataDSL {
@@ -25,8 +24,14 @@ class DataDSL {
 		return set;
 	}
 
-	public static BitSet makebitset(Consumer<BitSet> generator, int length) {
-		BitSet set = new BitSet(length);
+	public static BitSetIterable makebitset(Consumer<BitSetIterable> generator, int length) {
+		BitSetIterable set = new BitSetIterable(length);
+		generator.accept(set);
+		return set;
+	}
+
+	public static BitSetIterable makebitset(Consumer<BitSetIterable> generator) {
+		BitSetIterable set = new BitSetIterable();
 		generator.accept(set);
 		return set;
 	}

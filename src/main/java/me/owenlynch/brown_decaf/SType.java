@@ -55,17 +55,22 @@ public enum SType {
 	OPENBRACE,
 	CLOSEBRACE,
 
+	//EOF
+	EOF,
+
 	// NonTerminals
 	START,
 	CLASSLIST,
 	CLASSDEF,
 	SUPERDEC,
 	TYPE,
+	ARRAYSTUFF,
 	MODIFIERLIST,
 	FIELD,
 	METHOD,
 	CTOR,
 	MEMBERLIST,
+	MEMBER,
 	FORMALARGS,
 	FORMALARGLIST,
 	FORMALARG,
@@ -88,5 +93,8 @@ public enum SType {
 	ARRAYEXPR,
 	NONNEWARRAYEXPR,
 	PRIMARY,
-	EXPRESSION,
+	EXPRESSION;
+
+	public static final SType[] lookup = SType.values();
+	public static final int size = lookup.length;
 }

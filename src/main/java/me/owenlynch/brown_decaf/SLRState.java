@@ -1,5 +1,7 @@
 package me.owenlynch.brown_decaf;
 
+import java.util.Arrays;
+
 class SLRState {
 	public final Production p;
 	public final int place;
@@ -29,5 +31,23 @@ class SLRState {
 		// A → α⋅Cβ
 		// A → αC⋅β
 		return p == other.p && place + 1 == other.place && p.rhs[place] == X;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof SLRState) {
+			SLRState that = (SLRState) other;
+			return that.p.equals(p) && that.place == place;
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Arrays.hashCode(new Object[]{p, place});
+	}
+
+	public String toString() {
+		return String.format("{ %s, %d }", p.toString(), place);
 	}
 }
